@@ -10,9 +10,11 @@ tags: []
 Here we go, my first attempt at a blog...
 
 I wrote a load testing tool for [Riemann](http://riemann.io). The tool opens a configurable number of connections and worker threads and continuously pummels Riemann with events. The code can be found [here](https://github.com/mgodave/riemann-client). Part of why I wrote this tool was to try to idenfity Riemann's limits. The tool uses a Riemann client, which I also wrote, to keep pressure on Riemann. The load tool places hooks into various places in the client pipeline to track it's performance. The following metrics are kept:
-* The round trip time from when a Msg is sent from the client interface until it is ack'd by Riemann. 
+
+* The round trip time of a message and it's ack.
 * The rate at which acks are received at the client. 
 * The number of outstanding, unacked, requests.
+* The average network throughput.
 
 There are two interesting scenarios: sending Msg packets containing single events. Sending Msg packets containing a large number of events. I refer to these two scenarios as single event sends and bulk sends respectively. This post only addresses the first scenario, I will address the bulk send scenario in a later post.
 
@@ -35,31 +37,33 @@ riemann-load.sh localhost:5555
 ######Results
 
 <p/>
-[Raw output data] (/images/singletest.tar.gz)
+[Raw output data] (/images/1363277354887434000.zip)
 <p/>
 
 ######Summary
 
+Approximate values
+
 |Metric|Value|
 |:-----|------:|
-|Send Rate|103,898 msg/sec| 
-|Ack Rate|103,850 ack/sec|
-|Un-Acked|22,990 msg|
-|RTT|0.28 sec|
-|Throughput|1,870,195 bytes/sec|
+|Send Rate|100K msg/sec| 
+|Ack Rate|100K ack/sec|
+|Un-Acked|15K msg|
+|RTT|0.2 sec|
+|Throughput|200 mbps|
 
 <p/>
 
-The results are all pretty self explanatory. For the most part the lines are straight, which is what I would expect on a well behaving system. The only wierdness is with the large spikes in the unacked events graph. I can, for the most part, chalk these up to garbage collection events. However, since I did not collect this data I cannot be sure; I plan on collecting this and graphing it alongside this data in future runs. There is also a large, unknown event centered around 200 seconds, it is obvious in the graph entitled "Outstanding Un-Acked Events" and can also be noticed as a slight uptick in rtt time on the last graph.
+The results are all pretty self explanatory. For the most part the lines are straight and flat, which is what I would expect on a well behaving system. The only wierdness is with the large spikes in the unacked events graph, as well as the upward trend. My intuition tells me that the spikes are due to GC events. However, since I did not collect this data I cannot be sure; I plan on collecting this and graphing it alongside this data in future runs. As we might also expect, as the buffer of unacked events begins to grow, so does the average latency, but it appears to begin flattening out. I'll have to do some more runs to make sure.
 
 ######Sends/Ack Rate
-![Load](/images/SendAckRate.png)
+![Load](/images/acks.png)
 ######Outstanding Un-Acked Events
-![Load](/images/QueueLength.png)
+![Load](/images/unacked.png)
 ######Round Trip Time
-![Load](/images/Rtt.png)
+![Load](/images/rtt.png)
 ######Throughput
-![Load](/images/Throughput.png)
+![Load](/images/throughput.png)
 
 
 
