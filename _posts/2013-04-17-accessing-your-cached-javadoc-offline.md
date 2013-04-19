@@ -13,7 +13,7 @@ What follows is a simple python script that uses the built-in python web server 
 
 [https://gist.github.com/mgodave/5406999](https://gist.github.com/mgodave/5406999)
 
-<script src="https://gist.github.com/mgodave/5406999.js"></script>
+<script src="https://gist.github.com/mgodave/5406999.js"> </script>
 
 This script is simple (and ugly) so expect to edit the code if you need different configuration.
 
